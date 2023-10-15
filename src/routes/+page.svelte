@@ -1,9 +1,29 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import { generations } from './generations';
+import { goto } from '$app/navigation';
+import { page } from '$app/stores';
+import type { PageData } from './$types';
+import type { IndexMonster } from './+page';
+import { generations } from './generations';
 
-	export let data: PageData;
+export let data: PageData;
+
+$: monsterId = $page.url.searchParams.get('monsterId') || '';
+$: monster = data.monsters.find(monster => monster.id === monsterId);
+$: monsterId2 = $page.url.searchParams.get('monsterId2') || '';
+$: monster2 = data.monsters.find(monster => monster.id === monsterId2);
+
+const updateSerachParams = (key: string, value: string) => {
+    const searchParams = new URLSearchParams($page.url.search);
+    searchParams.set(key, value);
+    goto(`?${searchParams.toString()}`);
+};
+
 </script>
+
+<h1>{monsterId}</h1>
+<h2>{monster?.name}</h2>
+<h1>{monsterId2}</h1>
+<h2>{monster2?.name}</h2>
 
 <div class="generations">
 	{#each generations as generation (generation.id)}
@@ -13,7 +33,8 @@
 
 <div class="monsters">
 	{#each data.monsters as monster (monster.id)}
-		<div class="monster">
+	<div class="monster">
+        <div role="none" on:click={() => updateSerachParams('monsterId', monster.id)}>
 			<div class="monster-content">
 				<img src={monster.image} alt={monster.name} />
 				{monster.name}
@@ -22,6 +43,10 @@
 				{monster.id}
 			</div>
 		</div>
+        <div role="none" on:click={() => updateSerachParams('monsterId2', monster.id)}>
+            Add Monster 2
+        </div>
+    </div>	
 	{/each}
 </div>
 
